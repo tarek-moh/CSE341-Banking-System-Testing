@@ -11,9 +11,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class HomeController {
 
-    @GetMapping("/")
-    public String home(Model model) {
-        model.addAttribute("message", "Welcome to Banking Application");
-        return "index";
+    @GetMapping("/dashboard")
+    public String dashboard(Model model) {
+
+        return "dashboard";
+    }
+
+    @GetMapping("/transactions")
+    public String transactions(Model model) {
+
+        return "transactions";
     }
 }

@@ -1,17 +1,192 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html class="light" lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Banking Application</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Bank Corp - Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
 </head>
-<body>
-    <div class="container">
-        <h1 th:text="${message}">Welcome</h1>
-        <p>This is a sample banking application built with Spring Boot and Thymeleaf.</p>
-    </div>
-    
-    <script th:src="@{/js/main.js}"></script>
+
+<body
+    class="bg-background-light dark:bg-background-dark font-display text-[#0d141b] dark:text-white antialiased min-h-screen flex flex-col">
+    <!-- Navbar -->
+    <header
+        class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#e7edf3] dark:border-b-gray-800 px-10 py-4 bg-white dark:bg-[#1a2632] sticky top-0 z-50">
+        <div class="flex items-center gap-4 text-[#0d141b] dark:text-white">
+            <div class="size-8 text-primary">
+                <svg fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M44 4H30.6666V17.3334H17.3334V30.6666H4V44H44V4Z"></path>
+                </svg>
+            </div>
+            <h2 class="text-[#0d141b] dark:text-white text-xl font-bold leading-tight tracking-[-0.015em]">Bank Corp
+            </h2>
+        </div>
+        <div class="flex flex-1 justify-end gap-6 items-center">
+            <span class="hidden sm:inline-block text-sm font-medium text-[#4c739a] dark:text-gray-400">Not a
+                customer?</span>
+            <button
+                class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-6 bg-primary/10 hover:bg-primary/20 text-primary text-sm font-bold leading-normal transition-colors">
+                <span class="truncate">Open Account</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Area: Split View -->
+    <main class="flex-1 flex w-full relative">
+        <!-- Left Side: Hero / Branding Image -->
+        <div class="hidden lg:flex w-1/2 relative bg-primary/5 items-center justify-center overflow-hidden">
+            <!-- Background Image with Overlay -->
+            <div class="absolute inset-0 bg-cover bg-center" data-alt="Abstract futuristic blue digital network waves"
+                style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA8GSK9nnjEPraZGi-CpO0Jkq3IZ5v0_qAz6f7eWCoYCj8u46qL4ROhlc89Rf1HU1UGaqPbqInpI3m0hmqmdqdhOdJz4gmUD1rNbjzzg4kWyJr-dYkAYB9J-jCDU9EqOZGICoff3HMKs6TX8mlC8mcPlLPWYx5gFDl2QyDFDarWptjCCwX5lgnlTof9uwR6Ho8GbQnXBVmDwwYsf_vDCOBcTGyzuwfdM4NzucBaTHAYmRMZgF1MAwNDHhcsv9P4wGQ__K0U2TJrg8Oi");'>
+            </div>
+            <div class="absolute inset-0 bg-gradient-to-t from-primary/90 to-primary/40 mix-blend-multiply"></div>
+
+            <!-- Floating Testimonial/Info Card -->
+            <div class="relative z-10 p-12 text-white max-w-lg">
+                <h1 class="text-4xl font-black leading-tight tracking-[-0.033em] mb-6 drop-shadow-lg">
+                    Banking built for modern life.
+                </h1>
+                <p class="text-lg font-medium leading-relaxed opacity-90 drop-shadow-md">
+                    Experience secure, seamless, and smart banking solutions designed to help you grow your wealth with
+                    confidence.
+                </p>
+                <div class="mt-8 flex items-center gap-4">
+                    <div class="flex -space-x-3">
+                        <img alt="User Avatar 1" class="w-10 h-10 rounded-full border-2 border-white object-cover"
+                            data-alt="Portrait of a smiling young woman"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDOy7R23rhfz0QNiO4la7kHdtzmCStE4OwV6YUlYfMiVcy4RB8iqEMLSwql1nXgGAGcENjQXkM6JGigv3yqDP-54I9oUsvFpk0PTfwq9l_fMjDKHuue8bEk9yoWAJq-FLGuKCPwl86p_bY8ac10aJkwSMI5l4M0bBIA7Wnw46ws83LnkNgbPFVUNkEft2JC91pKuA2SkdHdGcjw2BBUAaHGIkPMk-4lJAh4jBonIn3qPbQz1jBgRVwjvIJwYa_v16k-x0Y7zqiFDGps" />
+                        <img alt="User Avatar 2" class="w-10 h-10 rounded-full border-2 border-white object-cover"
+                            data-alt="Portrait of a confident young man"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuD7KS7nXr5-xWK9RWjRr0MBBhEYqoq_BfwmI-M9-LWbz-IRutdfC-YRGKxR-aGcPcX8-VsNG5XwFbcefduLfGK28eXa0z5iRr6hisR3NOLluL1mObVbT38Db7GkGnTCE4d_Gyln5R0R8wPSKz7vLjlP6YERwaFt0X1C4qWc1p87UZUfxVfbCW9iShB0IysZlviOKhv8Kq0XdlZ-z6TYEQiIaGxijHl2oyhWeP1Lz-3cHL9bXx_e_srRct9YQe37E-RzUfeA3J06BArC" />
+                        <img alt="User Avatar 3" class="w-10 h-10 rounded-full border-2 border-white object-cover"
+                            data-alt="Portrait of a smiling man with glasses"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZ4w7YU9U1FCIXw1JbX-B71_FMrZr36ftCQ7d-Xf5SFfW6OxuYz5pM62VKgjrfh-vrkT9lzsS-cx6QOUFxsqqAhptrTDqV3Ci9if3Cyueqx7oUwuN5N9vF0sn7vlCNKvZ5Tr67ve4ngOBcnFUdsP8ivjS7L3jEOqLmQWK15CU-QYc-dYeS2omTwE7rWw2fKEpdQyU_RG7gL_snX-sIzS_BCH96cuKGH1ZjxGryvxAhOhW_Es1zfJXno6wyAvQKplupRoBDZPHKCFO5" />
+                    </div>
+                    <span class="text-sm font-semibold">Trusted by 2M+ customers</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side: Login Form -->
+        <div class="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 bg-white dark:bg-[#1a2632]">
+            <div class="w-full max-w-md flex flex-col gap-8">
+                <!-- Header -->
+                <div class="flex flex-col gap-2">
+                    <h1 class="text-[#0d141b] dark:text-white text-3xl font-bold leading-tight tracking-tight">
+                        Welcome back
+                    </h1>
+                    <p class="text-[#4c739a] dark:text-gray-400 text-base font-normal">
+                        Please enter your details to sign in.
+                    </p>
+                </div>
+
+                <!-- Form -->
+                <form class="flex flex-col gap-6" onsubmit="event.preventDefault();">
+                    <!-- Username Field -->
+                    <label class="flex flex-col gap-2">
+                        <span class="text-[#0d141b] dark:text-gray-200 text-sm font-semibold leading-normal">Username or
+                            ID</span>
+                        <div class="relative flex items-center">
+                            <input
+                                class="form-input w-full rounded-lg border border-[#cfdbe7] dark:border-gray-600 bg-[#f8fafc] dark:bg-[#23303e] text-[#0d141b] dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary h-12 px-4 pl-11 text-base transition-shadow"
+                                placeholder="Enter your username" required="" type="text" />
+                            <span
+                                class="material-symbols-outlined absolute left-3 text-[#4c739a] dark:text-gray-500 pointer-events-none select-none text-[20px]">
+                                person
+                            </span>
+                        </div>
+                    </label>
+
+                    <!-- Password Field -->
+                    <label class="flex flex-col gap-2">
+                        <span
+                            class="text-[#0d141b] dark:text-gray-200 text-sm font-semibold leading-normal">Password</span>
+                        <div class="relative flex items-center">
+                            <input
+                                class="form-input w-full rounded-lg border border-[#cfdbe7] dark:border-gray-600 bg-[#f8fafc] dark:bg-[#23303e] text-[#0d141b] dark:text-white focus:ring-2 focus:ring-primary/20 focus:border-primary h-12 px-4 pl-11 pr-11 text-base transition-shadow"
+                                placeholder="Enter your password" required="" type="password" />
+                            <span
+                                class="material-symbols-outlined absolute left-3 text-[#4c739a] dark:text-gray-500 pointer-events-none select-none text-[20px]">
+                                lock
+                            </span>
+                            <button
+                                class="absolute right-3 flex items-center justify-center text-[#4c739a] hover:text-primary dark:text-gray-500 dark:hover:text-primary cursor-pointer transition-colors"
+                                type="button">
+                                <span class="material-symbols-outlined text-[20px]">visibility</span>
+                            </button>
+                        </div>
+                    </label>
+
+                    <!-- Forgot Password & Remember Me -->
+                    <div class="flex items-center justify-between">
+                        <label class="flex items-center gap-2 cursor-pointer group">
+                            <input
+                                class="rounded border-gray-300 text-primary focus:ring-primary/20 w-4 h-4 cursor-pointer group-hover:border-primary transition-colors"
+                                type="checkbox" />
+                            <span
+                                class="text-sm text-[#4c739a] dark:text-gray-400 group-hover:text-[#0d141b] dark:group-hover:text-gray-200 transition-colors">Remember
+                                for 30 days</span>
+                        </label>
+                        <a class="text-primary text-sm font-semibold hover:underline" href="#">Forgot password?</a>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button
+                        class="w-full h-12 bg-primary hover:bg-blue-600 text-white font-bold rounded-lg shadow-md hover:shadow-lg transition-all transform active:scale-[0.99] flex items-center justify-center gap-2">
+                        <span>Sign In</span>
+                        <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+                    </button>
+
+                    <!-- Divider -->
+                    <div class="relative py-2">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-[#e7edf3] dark:border-gray-700"></div>
+                        </div>
+                        <div class="relative flex justify-center text-xs uppercase">
+                            <span class="bg-white dark:bg-[#1a2632] px-2 text-gray-400">Secure Access</span>
+                        </div>
+                    </div>
+
+                    <!-- Secure Connection Badge -->
+                    <div class="flex justify-center items-center gap-2 text-[#4c739a] dark:text-gray-500">
+                        <span class="material-symbols-outlined text-[16px] text-green-600">lock</span>
+                        <span class="text-xs font-medium">Your data is encrypted and secure</span>
+                    </div>
+                </form>
+
+                <!-- Mobile Signup Link (Visible only on smaller screens where header button might be hidden) -->
+                <p class="text-center text-sm text-[#4c739a] dark:text-gray-400 sm:hidden">
+                    Don't have an account?
+                    <a class="font-bold text-primary hover:underline" href="#">Sign up</a>
+                </p>
+            </div>
+        </div>
+    </main>
 </body>
+
 </html>
