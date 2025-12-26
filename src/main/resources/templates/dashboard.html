@@ -47,7 +47,70 @@
             background-color: #cbd5e1;
             border-radius: 20px;
         }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
+    <script>
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function dismissNotification(notificationId) {
+            const notification = document.getElementById(notificationId);
+            if (notification) {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(100%)';
+                notification.style.transition = 'all 0.3s ease-out';
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function (event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('active');
+            }
+        }
+    </script>
 </head>
 
 <body
@@ -64,7 +127,7 @@
                             </div>
                             <h2
                                 class="text-[#0d141b] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">
-                                MyBank Portal</h2>
+                                Bank Corp</h2>
                         </div>
                         <div class="flex flex-1 justify-end gap-4 md:gap-8 items-center">
                             <button
@@ -98,9 +161,9 @@
                 </div>
             </div>
 
-            <!-- Notification Card -->
-            <div class="w-full">
-                <div
+            <!-- Success Notification Card -->
+            <div class="w-full" th:if="${success}">
+                <div id="successNotification"
                     class="flex items-stretch justify-between gap-4 rounded-lg bg-white dark:bg-[#1a2632] p-4 border-l-4 border-green-500 shadow-sm">
                     <div class="flex flex-[2_2_0px] flex-col gap-2">
                         <div class="flex flex-col gap-1">
@@ -108,11 +171,34 @@
                                 <span class="material-symbols-outlined text-green-600 text-[20px]">check_circle</span>
                                 <p class="text-[#0d141b] dark:text-white text-base font-bold leading-tight">Success</p>
                             </div>
-                            <p class="text-[#4c739a] dark:text-[#93adc8] text-sm font-normal leading-normal pl-7">
-                                Transfer of $500.00 to Savings Account completed successfully.</p>
+                            <p class="text-[#4c739a] dark:text-[#93adc8] text-sm font-normal leading-normal pl-7"
+                                th:text="${success}">
+                                Operation completed successfully.</p>
                         </div>
                     </div>
-                    <button aria-label="Dismiss"
+                    <button aria-label="Dismiss" onclick="dismissNotification('successNotification')"
+                        class="flex cursor-pointer items-start justify-center h-fit text-[#4c739a] hover:text-[#0d141b] dark:hover:text-white transition-colors">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Error Notification Card -->
+            <div class="w-full" th:if="${error}">
+                <div id="errorNotification"
+                    class="flex items-stretch justify-between gap-4 rounded-lg bg-white dark:bg-[#1a2632] p-4 border-l-4 border-red-500 shadow-sm">
+                    <div class="flex flex-[2_2_0px] flex-col gap-2">
+                        <div class="flex flex-col gap-1">
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-red-600 text-[20px]">error</span>
+                                <p class="text-[#0d141b] dark:text-white text-base font-bold leading-tight">Error</p>
+                            </div>
+                            <p class="text-[#4c739a] dark:text-[#93adc8] text-sm font-normal leading-normal pl-7"
+                                th:text="${error}">
+                                Operation failed.</p>
+                        </div>
+                    </div>
+                    <button aria-label="Dismiss" onclick="dismissNotification('errorNotification')"
                         class="flex cursor-pointer items-start justify-center h-fit text-[#4c739a] hover:text-[#0d141b] dark:hover:text-white transition-colors">
                         <span class="material-symbols-outlined">close</span>
                     </button>
@@ -213,7 +299,7 @@
                             <h3 class="text-[#0d141b] dark:text-white text-lg font-bold">Quick Actions</h3>
                         </div>
                         <div class="p-6 grid grid-cols-1 gap-4 flex-1">
-                            <button
+                            <button onclick="openModal('depositModal')"
                                 class="group flex items-center gap-4 p-4 rounded-lg border border-[#e7edf3] dark:border-[#2a3b4d] hover:border-primary/50 hover:bg-primary/5 dark:hover:bg-primary/10 transition-all cursor-pointer text-left w-full">
                                 <div
                                     class="size-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
@@ -224,7 +310,7 @@
                                     <span class="text-[#4c739a] dark:text-[#93adc8] text-xs">Add funds to account</span>
                                 </div>
                             </button>
-                            <button
+                            <button onclick="openModal('withdrawModal')"
                                 class="group flex items-center gap-4 p-4 rounded-lg border border-[#e7edf3] dark:border-[#2a3b4d] hover:border-primary/50 hover:bg-primary/5 dark:hover:bg-primary/10 transition-all cursor-pointer text-left w-full">
                                 <div
                                     class="size-12 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-600 dark:text-orange-400 group-hover:scale-110 transition-transform">
@@ -235,7 +321,7 @@
                                     <span class="text-[#4c739a] dark:text-[#93adc8] text-xs">Cash out funds</span>
                                 </div>
                             </button>
-                            <button
+                            <button onclick="openModal('transferModal')"
                                 class="group flex items-center gap-4 p-4 rounded-lg border border-[#e7edf3] dark:border-[#2a3b4d] hover:border-primary/50 hover:bg-primary/5 dark:hover:bg-primary/10 transition-all cursor-pointer text-left w-full">
                                 <div
                                     class="size-12 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400 group-hover:scale-110 transition-transform">
@@ -285,6 +371,117 @@
             </div>
         </div>
     </main>
+
+    <!-- Deposit Modal -->
+    <div id="depositModal" class="modal">
+        <div class="modal-content bg-white dark:bg-[#1a2632] rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-[#0d141b] dark:text-white">Deposit Funds</h2>
+                <button onclick="closeModal('depositModal')"
+                    class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                    <span class="material-symbols-outlined text-3xl">close</span>
+                </button>
+            </div>
+            <form action="/account/deposit" method="get" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-[#0d141b] dark:text-white mb-2">Amount</label>
+                    <div class="relative">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">$</span>
+                        <input type="number" name="amount" step="0.01" min="0.01" required
+                            class="w-full pl-8 pr-4 py-3 border border-[#cfdbe7] dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none bg-white dark:bg-[#23303e] text-[#0d141b] dark:text-white"
+                            placeholder="0.00">
+                    </div>
+                </div>
+                <div class="flex gap-3 pt-4">
+                    <button type="button" onclick="closeModal('depositModal')"
+                        class="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                        class="flex-1 px-4 py-3 bg-primary hover:bg-blue-600 text-white font-bold rounded-lg shadow-lg transition">
+                        Deposit
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Withdraw Modal -->
+    <div id="withdrawModal" class="modal">
+        <div class="modal-content bg-white dark:bg-[#1a2632] rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-[#0d141b] dark:text-white">Withdraw Funds</h2>
+                <button onclick="closeModal('withdrawModal')"
+                    class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                    <span class="material-symbols-outlined text-3xl">close</span>
+                </button>
+            </div>
+            <form action="/account/withdraw" method="get" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-[#0d141b] dark:text-white mb-2">Amount</label>
+                    <div class="relative">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">$</span>
+                        <input type="number" name="amount" step="0.01" min="0.01" required
+                            class="w-full pl-8 pr-4 py-3 border border-[#cfdbe7] dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none bg-white dark:bg-[#23303e] text-[#0d141b] dark:text-white"
+                            placeholder="0.00">
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">Available balance: $12,450.00</p>
+                </div>
+                <div class="flex gap-3 pt-4">
+                    <button type="button" onclick="closeModal('withdrawModal')"
+                        class="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                        class="flex-1 px-4 py-3 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-lg shadow-lg transition">
+                        Withdraw
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Transfer Modal -->
+    <div id="transferModal" class="modal">
+        <div class="modal-content bg-white dark:bg-[#1a2632] rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-[#0d141b] dark:text-white">Transfer Funds</h2>
+                <button onclick="closeModal('transferModal')"
+                    class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                    <span class="material-symbols-outlined text-3xl">close</span>
+                </button>
+            </div>
+            <form action="/account/transfer" method="get" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-[#0d141b] dark:text-white mb-2">Recipient Account
+                        Number</label>
+                    <input type="text" name="recipientAccount" required
+                        class="w-full px-4 py-3 border border-[#cfdbe7] dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none bg-white dark:bg-[#23303e] text-[#0d141b] dark:text-white"
+                        placeholder="Enter account number">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-[#0d141b] dark:text-white mb-2">Amount</label>
+                    <div class="relative">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">$</span>
+                        <input type="number" name="amount" step="0.01" min="0.01" required
+                            class="w-full pl-8 pr-4 py-3 border border-[#cfdbe7] dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none bg-white dark:bg-[#23303e] text-[#0d141b] dark:text-white"
+                            placeholder="0.00">
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">Available balance: $12,450.00</p>
+                </div>
+                <div class="flex gap-3 pt-4">
+                    <button type="button" onclick="closeModal('transferModal')"
+                        class="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                        class="flex-1 px-4 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg shadow-lg transition">
+                        Transfer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </body>
 
 </html>
