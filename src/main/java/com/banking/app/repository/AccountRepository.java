@@ -22,10 +22,10 @@ public class AccountRepository {
      */
     public AccountRepository() {
         // Create some default accounts for testing
-        accounts.put("123", new Account("123", 12450.00, "Verified"));
-        accounts.put("456", new Account("456", 5000.00, "Verified"));
-        accounts.put("789", new Account("789", 1000.00, "Unverified"));
-        accounts.put("999", new Account("999", 0.00, "Suspended"));
+        accounts.put("123", new Account("123", "John Doe", 12450.00, "VERIFIED"));
+        accounts.put("456", new Account("456", "Jane Smith", 5000.00, "VERIFIED"));
+        accounts.put("789", new Account("789", "Alice Johnson", 1000.00, "UNVERIFIED"));
+        accounts.put("999", new Account("999", "Bob Brown", 0.00, "SUSPENDED"));
     }
 
     /**

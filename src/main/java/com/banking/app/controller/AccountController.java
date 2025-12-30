@@ -4,18 +4,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.banking.app.service.AccountService;
+import java.math.BigDecimal;
 
 @Controller
 public class AccountController {
 
+    private final AccountService accountService;
+
     @Autowired
-    private AccountService accountService;
+    public AccountController(AccountService accountService) {
+        this.accountService = accountService;
+    }
 
     @GetMapping("/account")
     public String account(Model model) {
+        model.addAttribute("account", accountService.getAccount("123"));
         return "account";
     }
 
@@ -29,59 +36,74 @@ public class AccountController {
         return "account-delete";
     }
 
-    @GetMapping("/account/withdraw")
-    public String handleWithdraw(@RequestParam(required = true) Double amount, Model model) {
-        if (amount <= 0) {
+    @PostMapping("/account/withdraw")
+    public String handleWithdraw(@RequestParam(required = true) BigDecimal amount, Model model) {
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
             model.addAttribute("error", "Invalid withdrawal amount");
-            model.addAttribute("account", AccountService.getAccount("123"));
+            model.addAttribute("account", accountService.getAccount("123"));
             return "dashboard";
         }
 
-        String result = accountService.processWithdraw(amount);
+        String result = accountService.processWithdraw("123", amount);
         if (result.contains("Failed")) {
             model.addAttribute("error", result);
         } else {
             model.addAttribute("success", result);
         }
-        model.addAttribute("account", AccountService.getAccount("123"));
+        model.addAttribute("account", accountService.getAccount("123"));
         return "dashboard";
     }
 
-    @GetMapping("/account/deposit")
-    public String handleDeposit(@RequestParam(required = true) Double amount, Model model) {
-        if (amount <= 0) {
+    @PostMapping("/account/deposit")
+    public String handleDeposit(@RequestParam(required = true) BigDecimal amount, Model model) {
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
             model.addAttribute("error", "Invalid deposit amount");
-            model.addAttribute("account", AccountService.getAccount("123"));
+            model.addAttribute("account", accountService.getAccount("123"));
             return "dashboard";
         }
 
-        String result = accountService.processDeposit(amount);
+        String result = accountService.processDeposit("123", amount);
         if (result.contains("Failed")) {
             model.addAttribute("error", result);
         } else {
             model.addAttribute("success", result);
         }
-        model.addAttribute("account", AccountService.getAccount("123"));
-        return "dashboard"; // Reload the page
+        model.addAttribute("account", accountService.getAccount("123"));
+        return "dashboard";
     }
 
-    @GetMapping("/account/transfer")
-    public String handleTransfer(Model model) {
-        return "transfer";
+    @PostMapping("/account/transfer")
+    public String handleTransfer(@RequestParam(required = true) String recipientAccount,
+            @RequestParam(required = true) BigDecimal amount,
+            Model model) {
+        String result = accountService.processTransfer("123", recipientAccount, amount);
+        if (result.contains("Failed")) {
+            model.addAttribute("error", result);
+        } else {
+            model.addAttribute("success", result);
+        }
+        model.addAttribute("account", accountService.getAccount("123"));
+        return "dashboard";
     }
 
-    @GetMapping("/account/verify")
+    @PostMapping("/account/verify")
     public String handleVerify(Model model) {
-        return "verify";
+        accountService.processVerify("123");
+        model.addAttribute("account", accountService.getAccount("123"));
+        return "redirect:/dashboard";
     }
 
-    @GetMapping("/account/suspend")
+    @PostMapping("/account/suspend")
     public String handleSuspend(Model model) {
-        return "suspend";
+        accountService.processSuspend("123");
+        model.addAttribute("account", accountService.getAccount("123"));
+        return "redirect:/dashboard";
     }
 
-    @GetMapping("/account/close")
+    @PostMapping("/account/close")
     public String handleClose(Model model) {
-        return "close";
+        accountService.processClose("123");
+        model.addAttribute("account", accountService.getAccount("123"));
+        return "redirect:/dashboard";
     }
 }

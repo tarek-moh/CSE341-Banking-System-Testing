@@ -149,7 +149,9 @@
                             <p
                                 class="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold mb-1">
                                 Total Balance</p>
-                            <p class="text-2xl font-bold text-slate-900 dark:text-white">$24,562.00</p>
+                            <p class="text-2xl font-bold text-slate-900 dark:text-white"
+                                th:text="${'$' + #numbers.formatDecimal(account.balance, 1, 'COMMA', 2, 'POINT')}">
+                                $24,562.00</p>
                         </div>
                     </div>
                     <div class="grid lg:grid-cols-3 gap-6">

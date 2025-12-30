@@ -220,8 +220,8 @@
                                 class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-green-100 dark:bg-green-900/30 pl-2 pr-4 border border-green-200 dark:border-green-800">
                                 <span
                                     class="material-symbols-outlined text-green-700 dark:text-green-400 text-[20px]">verified</span>
-                                <p
-                                    class="text-green-800 dark:text-green-300 text-xs font-bold uppercase tracking-wider">
+                                <p class="text-green-800 dark:text-green-300 text-xs font-bold uppercase tracking-wider"
+                                    th:text="${account.status}">
                                     Verified</p>
                             </div>
                         </div>
@@ -230,8 +230,8 @@
                             <div class="mb-8">
                                 <p class="text-[#4c739a] dark:text-[#93adc8] text-sm font-medium mb-1">Total Available
                                     Balance</p>
-                                <p
-                                    class="text-[#0d141b] dark:text-white text-5xl font-black tracking-tight text-primary">
+                                <p class="text-[#0d141b] dark:text-white text-5xl font-black tracking-tight text-primary"
+                                    th:text="${'$' + #numbers.formatDecimal(account.balance, 1, 'COMMA', 2, 'POINT')}">
                                     $12,450.00</p>
                             </div>
                             <!-- Details Form -->
@@ -246,7 +246,7 @@
                                         </div>
                                         <input
                                             class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#0d141b] dark:text-white bg-slate-50 dark:bg-[#101922] border border-[#cfdbe7] dark:border-[#2a3b4d] h-12 pl-10 pr-4 text-base font-medium focus:outline-none cursor-default"
-                                            readonly="" value="Johnathon Doe" />
+                                            readonly="" th:value="${account.clientName}" />
                                     </div>
                                 </label>
                                 <label class="flex flex-col min-w-40 flex-1">
@@ -259,7 +259,7 @@
                                         </div>
                                         <input
                                             class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#0d141b] dark:text-white bg-slate-50 dark:bg-[#101922] border border-[#cfdbe7] dark:border-[#2a3b4d] h-12 pl-10 pr-12 text-base font-medium focus:outline-none cursor-default"
-                                            readonly="" type="text" value="•••• •••• 4589" />
+                                            readonly="" type="text" th:value="${account.accountNumber}" />
                                         <button
                                             class="absolute inset-y-0 right-0 pr-3 flex items-center text-[#4c739a] hover:text-primary transition-colors cursor-pointer">
                                             <span class="material-symbols-outlined text-[20px]">visibility</span>
@@ -382,7 +382,7 @@
                     <span class="material-symbols-outlined text-3xl">close</span>
                 </button>
             </div>
-            <form action="/account/deposit" method="get" class="space-y-4">
+            <form th:action="@{/account/deposit}" method="post" class="space-y-4">
                 <div>
                     <label class="block text-sm font-semibold text-[#0d141b] dark:text-white mb-2">Amount</label>
                     <div class="relative">
@@ -416,7 +416,7 @@
                     <span class="material-symbols-outlined text-3xl">close</span>
                 </button>
             </div>
-            <form action="/account/withdraw" method="get" class="space-y-4">
+            <form th:action="@{/account/withdraw}" method="post" class="space-y-4">
                 <div>
                     <label class="block text-sm font-semibold text-[#0d141b] dark:text-white mb-2">Amount</label>
                     <div class="relative">
@@ -425,7 +425,9 @@
                             class="w-full pl-8 pr-4 py-3 border border-[#cfdbe7] dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none bg-white dark:bg-[#23303e] text-[#0d141b] dark:text-white"
                             placeholder="0.00">
                     </div>
-                    <p class="text-xs text-gray-500 mt-1">Available balance: $12,450.00</p>
+                    <p class="text-xs text-gray-500 mt-1"
+                        th:text="${'$' + #numbers.formatDecimal(account.balance, 1, 'COMMA', 2, 'POINT')}">
+                        Available balance: $12,450.00</p>
                 </div>
                 <div class="flex gap-3 pt-4">
                     <button type="button" onclick="closeModal('withdrawModal')"
@@ -451,7 +453,7 @@
                     <span class="material-symbols-outlined text-3xl">close</span>
                 </button>
             </div>
-            <form action="/account/transfer" method="get" class="space-y-4">
+            <form th:action="@{/account/transfer}" method="post" class="space-y-4">
                 <div>
                     <label class="block text-sm font-semibold text-[#0d141b] dark:text-white mb-2">Recipient Account
                         Number</label>
