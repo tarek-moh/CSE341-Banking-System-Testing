@@ -3,6 +3,8 @@ package com.banking.app.model;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+import com.banking.app.exception.*;
+
 public class Account {
     private String accountNumber;
     private String clientName;
@@ -60,55 +62,94 @@ public class Account {
                 + ", status=" + status + "]";
     }
 
-    public boolean withdraw(BigDecimal amount) {
-        if (status == AccountStatus.CLOSED || status == AccountStatus.SUSPENDED)
-            return false;
-        if (amount.compareTo(BigDecimal.ZERO) <= 0 || amount.compareTo(balance) > 0)
-            return false;
-        balance = balance.subtract(amount);
-        return true;
-    }
+    // ======== Account Operations ========
+    // > Note: These methods comply with the permissions table in permissions.md
 
-    public boolean deposit(BigDecimal amount) {
-        if (status == AccountStatus.CLOSED || amount.compareTo(BigDecimal.ZERO) <= 0)
-            return false;
-        balance = balance.add(amount);
-        return true;
-    }
-
-    public boolean transfer(Account destination, BigDecimal amount) {
-        if (!withdraw(amount))
-            return false;
-        if (!destination.deposit(amount)) {
-            // Rollback withdrawal if deposit fails
-            deposit(amount);
-            return false;
+    public void withdraw(BigDecimal amount) {
+        if (status == AccountStatus.CLOSED) {
+            throw new AccountStatusException("Transaction failed: Your account is closed.");
         }
-        return true;
-    }
-
-    public boolean verify() {
+        if (status == AccountStatus.SUSPENDED) {
+            throw new AccountStatusException("Transaction failed: Your account is suspended.");
+        }
         if (status == AccountStatus.UNVERIFIED) {
-            status = AccountStatus.VERIFIED;
-            return true;
+            throw new AccountStatusException("Transaction failed: Unverified accounts cannot withdraw funds.");
         }
-        return false;
+
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new InvalidAmountException("Transaction failed: Withdrawal amount must be greater than zero.");
+        }
+
+        if (amount.compareTo(balance) > 0) {
+            throw new InsufficientFundsException(
+                    "Transaction failed: Insufficient funds. Available balance is $" + balance);
+        }
+
+        balance = balance.subtract(amount);
     }
 
-    public boolean suspend() {
-        if (status == AccountStatus.VERIFIED || status == AccountStatus.CLOSED) {
-            status = AccountStatus.SUSPENDED;
-            return true;
+    public void deposit(BigDecimal amount) {
+        if (status == AccountStatus.CLOSED) {
+            throw new AccountStatusException("Transaction failed: Your account is closed.");
         }
-        return false;
+
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new InvalidAmountException("Transaction failed: Deposit amount must be greater than zero.");
+        }
+
+        balance = balance.add(amount);
     }
 
-    public boolean close() {
-        if (status == AccountStatus.VERIFIED || status == AccountStatus.SUSPENDED) {
-            status = AccountStatus.CLOSED;
-            return true;
+    public void transfer(Account destination, BigDecimal amount) {
+        if (status == AccountStatus.CLOSED) {
+            throw new AccountStatusException("Transfer failed: Your account is closed.");
         }
-        return false;
+        if (status == AccountStatus.SUSPENDED) {
+            throw new AccountStatusException("Transfer failed: Your account is suspended.");
+        }
+        if (status == AccountStatus.UNVERIFIED) {
+            throw new AccountStatusException("Transfer failed: Unverified accounts cannot initiate transfers.");
+        }
+
+        if (destination.getStatus() == AccountStatus.CLOSED) {
+            throw new AccountStatusException("Transfer failed: Destination account is closed.");
+        }
+        if (destination.getStatus() == AccountStatus.SUSPENDED) {
+            throw new AccountStatusException("Transfer failed: Destination account is suspended.");
+        }
+
+        // Withdraw from source
+        this.withdraw(amount);
+
+        // Deposit to destination
+        try {
+            destination.deposit(amount);
+        } catch (BankingException e) {
+            // Rollback withdrawal if deposit fails
+            balance = balance.add(amount);
+            throw new BankingException("Transfer failed: Could not deposit into recipient account. " + e.getMessage());
+        }
+    }
+
+    public void verify() {
+        if (status != AccountStatus.UNVERIFIED) {
+            throw new AccountStatusException("Account is already " + status.toString().toLowerCase() + ".");
+        }
+        status = AccountStatus.VERIFIED;
+    }
+
+    public void suspend() {
+        if (status == AccountStatus.SUSPENDED) {
+            throw new AccountStatusException("Account is already suspended.");
+        }
+        status = AccountStatus.SUSPENDED;
+    }
+
+    public void close() {
+        if (status == AccountStatus.CLOSED) {
+            throw new AccountStatusException("Account is already closed.");
+        }
+        status = AccountStatus.CLOSED;
     }
 
 }

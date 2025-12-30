@@ -7,6 +7,8 @@ import com.banking.app.repository.AccountRepository;
 import java.math.BigDecimal;
 import java.util.Optional;
 
+import com.banking.app.exception.BankingException;
+
 @Service
 public class AccountService {
 
@@ -27,11 +29,13 @@ public class AccountService {
             return "Failed: Account not found";
 
         Account account = accountOpt.get();
-        if (!account.withdraw(amount))
-            return "Failed to withdraw";
-
-        accountRepository.save(account);
-        return "Withdrawal successful";
+        try {
+            account.withdraw(amount);
+            accountRepository.save(account);
+            return "Withdrawal successful";
+        } catch (BankingException e) {
+            return "Failed: " + e.getMessage();
+        }
     }
 
     public String processDeposit(String accountNumber, BigDecimal amount) {
@@ -40,11 +44,13 @@ public class AccountService {
             return "Failed: Account not found";
 
         Account account = accountOpt.get();
-        if (!account.deposit(amount))
-            return "Failed to deposit";
-
-        accountRepository.save(account);
-        return "Deposit successful";
+        try {
+            account.deposit(amount);
+            accountRepository.save(account);
+            return "Deposit successful";
+        } catch (BankingException e) {
+            return "Failed: " + e.getMessage();
+        }
     }
 
     public String processTransfer(String sourceNumber, String destNumber, BigDecimal amount) {
@@ -52,17 +58,19 @@ public class AccountService {
         Optional<Account> destOpt = accountRepository.findByAccountNumber(destNumber);
 
         if (sourceOpt.isEmpty() || destOpt.isEmpty())
-            return "Failed: Account(s) not found";
+            return "Failed: Account not found";
 
         Account source = sourceOpt.get();
         Account dest = destOpt.get();
 
-        if (!source.transfer(dest, amount))
-            return "Failed to transfer";
-
-        accountRepository.save(source);
-        accountRepository.save(dest);
-        return "Transfer successful";
+        try {
+            source.transfer(dest, amount);
+            accountRepository.save(source);
+            accountRepository.save(dest);
+            return "Transfer successful";
+        } catch (BankingException e) {
+            return "Failed: " + e.getMessage();
+        }
     }
 
     public String processVerify(String accountNumber) {
@@ -71,11 +79,13 @@ public class AccountService {
             return "Failed: Account not found";
 
         Account account = accountOpt.get();
-        if (!account.verify())
-            return "Failed to verify";
-
-        accountRepository.save(account);
-        return "Verification successful";
+        try {
+            account.verify();
+            accountRepository.save(account);
+            return "Verification successful";
+        } catch (BankingException e) {
+            return "Failed: " + e.getMessage();
+        }
     }
 
     public String processSuspend(String accountNumber) {
@@ -84,11 +94,13 @@ public class AccountService {
             return "Failed: Account not found";
 
         Account account = accountOpt.get();
-        if (!account.suspend())
-            return "Failed to suspend";
-
-        accountRepository.save(account);
-        return "Suspension successful";
+        try {
+            account.suspend();
+            accountRepository.save(account);
+            return "Suspension successful";
+        } catch (BankingException e) {
+            return "Failed: " + e.getMessage();
+        }
     }
 
     public String processClose(String accountNumber) {
@@ -97,10 +109,12 @@ public class AccountService {
             return "Failed: Account not found";
 
         Account account = accountOpt.get();
-        if (!account.close())
-            return "Failed to close";
-
-        accountRepository.save(account);
-        return "Closing successful";
+        try {
+            account.close();
+            accountRepository.save(account);
+            return "Closing successful";
+        } catch (BankingException e) {
+            return "Failed: " + e.getMessage();
+        }
     }
 }
