@@ -382,7 +382,23 @@
                     <span class="material-symbols-outlined text-3xl">close</span>
                 </button>
             </div>
-            <form th:action="@{/account/deposit}" method="post" class="space-y-4">
+            <form th:action="@{/payment/deposit}" method="post" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-[#0d141b] dark:text-white mb-2">Card Details</label>
+                    <div class="grid grid-cols-1 gap-3">
+                        <input type="text" name="cardNumber" required
+                            class="w-full px-4 py-3 border border-[#cfdbe7] dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none bg-white dark:bg-[#23303e] text-[#0d141b] dark:text-white"
+                            placeholder="Card Number (Ending in 0000/1111/9999 for scenarios)">
+                        <div class="grid grid-cols-2 gap-3">
+                            <input type="text" name="expiry" required
+                                class="w-full px-4 py-3 border border-[#cfdbe7] dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none bg-white dark:bg-[#23303e] text-[#0d141b] dark:text-white"
+                                placeholder="MM/YY">
+                            <input type="text" name="cvv" required
+                                class="w-full px-4 py-3 border border-[#cfdbe7] dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none bg-white dark:bg-[#23303e] text-[#0d141b] dark:text-white"
+                                placeholder="CVV">
+                        </div>
+                    </div>
+                </div>
                 <div>
                     <label class="block text-sm font-semibold text-[#0d141b] dark:text-white mb-2">Amount</label>
                     <div class="relative">
@@ -399,7 +415,7 @@
                     </button>
                     <button type="submit"
                         class="flex-1 px-4 py-3 bg-primary hover:bg-blue-600 text-white font-bold rounded-lg shadow-lg transition">
-                        Deposit
+                        Process Deposit
                     </button>
                 </div>
             </form>
@@ -416,7 +432,23 @@
                     <span class="material-symbols-outlined text-3xl">close</span>
                 </button>
             </div>
-            <form th:action="@{/account/withdraw}" method="post" class="space-y-4">
+            <form th:action="@{/payment/withdraw}" method="post" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-[#0d141b] dark:text-white mb-2">Card Details</label>
+                    <div class="grid grid-cols-1 gap-3">
+                        <input type="text" name="cardNumber" required
+                            class="w-full px-4 py-3 border border-[#cfdbe7] dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none bg-white dark:bg-[#23303e] text-[#0d141b] dark:text-white"
+                            placeholder="Card Number (Ending in 0000/1111/9999 for scenarios)">
+                        <div class="grid grid-cols-2 gap-3">
+                            <input type="text" name="expiry" required
+                                class="w-full px-4 py-3 border border-[#cfdbe7] dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none bg-white dark:bg-[#23303e] text-[#0d141b] dark:text-white"
+                                placeholder="MM/YY">
+                            <input type="text" name="cvv" required
+                                class="w-full px-4 py-3 border border-[#cfdbe7] dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none bg-white dark:bg-[#23303e] text-[#0d141b] dark:text-white"
+                                placeholder="CVV">
+                        </div>
+                    </div>
+                </div>
                 <div>
                     <label class="block text-sm font-semibold text-[#0d141b] dark:text-white mb-2">Amount</label>
                     <div class="relative">
@@ -436,7 +468,7 @@
                     </button>
                     <button type="submit"
                         class="flex-1 px-4 py-3 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-lg shadow-lg transition">
-                        Withdraw
+                        Process Withdrawal
                     </button>
                 </div>
             </form>

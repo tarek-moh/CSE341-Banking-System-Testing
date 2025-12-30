@@ -10,6 +10,7 @@ public class Account {
     private String clientName;
     private BigDecimal balance;
     private AccountStatus status;
+    private final String transactionLimit = "1000";
 
     public Account(String accountNumber, String clientName, double balance, String status) {
         this.accountNumber = accountNumber;
@@ -85,6 +86,11 @@ public class Account {
                     "Transaction failed: Insufficient funds. Available balance is $" + balance);
         }
 
+        if (amount.compareTo(new BigDecimal(transactionLimit)) > 0) {
+            throw new InvalidAmountException(
+                    "Transaction failed: Withdrawal amount must be less than $" + transactionLimit);
+        }
+
         balance = balance.subtract(amount);
     }
 
@@ -95,6 +101,11 @@ public class Account {
 
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new InvalidAmountException("Transaction failed: Deposit amount must be greater than zero.");
+        }
+
+        if (amount.compareTo(new BigDecimal(transactionLimit)) > 0) {
+            throw new InvalidAmountException(
+                    "Transaction failed: Deposit amount must be less than $" + transactionLimit);
         }
 
         balance = balance.add(amount);
