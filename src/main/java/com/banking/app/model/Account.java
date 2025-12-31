@@ -11,6 +11,7 @@ public class Account {
     private BigDecimal balance;
     private AccountStatus status;
     private final String transactionLimit = "1000";
+    private final String minTransactionAmount = "50";
 
     public Account(String accountNumber, String clientName, double balance, String status) {
         this.accountNumber = accountNumber;
@@ -91,6 +92,11 @@ public class Account {
                     "Transaction failed: Withdrawal amount must be less than $" + transactionLimit);
         }
 
+        if (amount.compareTo(new BigDecimal(minTransactionAmount)) < 0) {
+            throw new InvalidAmountException(
+                    "Transaction failed: Withdrawal amount must be greater than $" + minTransactionAmount);
+        }
+
         balance = balance.subtract(amount);
     }
 
@@ -106,6 +112,11 @@ public class Account {
         if (amount.compareTo(new BigDecimal(transactionLimit)) > 0) {
             throw new InvalidAmountException(
                     "Transaction failed: Deposit amount must be less than $" + transactionLimit);
+        }
+
+        if (amount.compareTo(new BigDecimal(minTransactionAmount)) < 0) {
+            throw new InvalidAmountException(
+                    "Transaction failed: Deposit amount must be greater than $" + minTransactionAmount);
         }
 
         balance = balance.add(amount);
@@ -127,6 +138,16 @@ public class Account {
         }
         if (destination.getStatus() == AccountStatus.SUSPENDED) {
             throw new AccountStatusException("Transfer failed: Destination account is suspended.");
+        }
+
+        if (amount.compareTo(new BigDecimal(minTransactionAmount)) < 0) {
+            throw new InvalidAmountException(
+                    "Transfer failed: Transfer amount must be greater than $" + minTransactionAmount);
+        }
+
+        if (amount.compareTo(new BigDecimal(transactionLimit)) > 0) {
+            throw new InvalidAmountException(
+                    "Transfer failed: Transfer amount must be less than $" + transactionLimit);
         }
 
         // Withdraw from source
