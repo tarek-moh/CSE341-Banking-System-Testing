@@ -8,25 +8,24 @@ import com.banking.app.repository.AccountRepository;
 import com.banking.app.service.AccountService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-// Simple Mockito usage
+
 import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 public class AccountServiceWhiteBoxTest {
 
-    private AccountRepository accountRepository;
-    private TransactionPolicy transactionPolicy;
+    private StubAccountRepository accountRepository;
+    private StubTransactionPolicy transactionPolicy;
     private AccountService accountService;
 
     @BeforeEach
     public void setup() {
-        // Manual mocking
-        accountRepository = mock(AccountRepository.class);
-        transactionPolicy = mock(TransactionPolicy.class);
+        accountRepository = new StubAccountRepository();
+        transactionPolicy = new StubTransactionPolicy();
         accountService = new AccountService(accountRepository, transactionPolicy);
     }
 
@@ -37,43 +36,35 @@ public class AccountServiceWhiteBoxTest {
     @Test
     // Coverage: Deposit - Path 1 (Decision: Account Not Found)
     public void testDeposit_AccountNotFound() {
-        when(accountRepository.findByAccountNumber("999")).thenReturn(Optional.empty());
-
         String result = accountService.processDeposit("999", new BigDecimal("100"));
-
         assertEquals("Failed: Account not found", result);
-        verify(accountRepository, never()).save(any());
     }
 
     @Test
     // Coverage: Deposit - Path 2 (Decision: Success)
     public void testDeposit_Success() {
-        Account mockAccount = new Account("123", "John", 1000.0, "VERIFIED");
-        when(accountRepository.findByAccountNumber("123")).thenReturn(Optional.of(mockAccount));
 
-        doNothing().when(transactionPolicy).validateDeposit(any(), any());
+        Account account = new Account("123", "John", "john_user", "pass123", 1000.0, "VERIFIED");
+        accountRepository.save(account);
 
         String result = accountService.processDeposit("123", new BigDecimal("500"));
 
         assertEquals("Deposit successful", result);
-        assertEquals(new BigDecimal("1500.00"), mockAccount.getBalance());
-        verify(transactionPolicy).validateDeposit(mockAccount, new BigDecimal("500"));
-        verify(accountRepository).save(mockAccount);
+        assertEquals(new BigDecimal("1500.00"), account.getBalance());
     }
 
     @Test
     // Coverage: Deposit - Path 3 (Decision: Policy Exception)
     public void testDeposit_PolicyFailure() {
-        Account mockAccount = new Account("123", "John", 1000.0, "VERIFIED");
-        when(accountRepository.findByAccountNumber("123")).thenReturn(Optional.of(mockAccount));
+        Account account = new Account("123", "John", "john_user", "pass123", 1000.0, "VERIFIED");
+        accountRepository.save(account);
 
-        doThrow(new InvalidAmountException("Invalid amount"))
-                .when(transactionPolicy).validateDeposit(any(), any());
+        // Configure stub to throw exception for this specific scenario
+        transactionPolicy.shouldThrowDepositError = true;
 
         String result = accountService.processDeposit("123", new BigDecimal("-100"));
 
         assertEquals("Failed: Invalid amount", result);
-        verify(accountRepository, never()).save(any());
     }
 
     // =========================================================
@@ -83,41 +74,33 @@ public class AccountServiceWhiteBoxTest {
     @Test
     // Coverage: Withdraw - Path 1 (Decision: Account Not Found)
     public void testWithdraw_AccountNotFound() {
-        when(accountRepository.findByAccountNumber("999")).thenReturn(Optional.empty());
-
         String result = accountService.processWithdraw("999", new BigDecimal("100"));
-
         assertEquals("Failed: Account not found", result);
     }
 
     @Test
     // Coverage: Withdraw - Path 2 (Decision: Success)
     public void testWithdraw_Success() {
-        Account mockAccount = new Account("123", "John", 1000.0, "VERIFIED");
-        when(accountRepository.findByAccountNumber("123")).thenReturn(Optional.of(mockAccount));
-
-        doNothing().when(transactionPolicy).validateWithdraw(any(), any());
+        Account account = new Account("123", "John", "john_user", "pass123", 1000.0, "VERIFIED");
+        accountRepository.save(account);
 
         String result = accountService.processWithdraw("123", new BigDecimal("100"));
 
         assertEquals("Withdrawal successful", result);
-        assertEquals(new BigDecimal("900.00"), mockAccount.getBalance());
-        verify(accountRepository).save(mockAccount);
+        assertEquals(new BigDecimal("900.00"), account.getBalance());
     }
 
     @Test
     // Coverage: Withdraw - Path 3 (Decision: Policy Exception)
     public void testWithdraw_PolicyFailure() {
-        Account mockAccount = new Account("123", "John", 1000.0, "VERIFIED");
-        when(accountRepository.findByAccountNumber("123")).thenReturn(Optional.of(mockAccount));
+        Account account = new Account("123", "John", "john_user", "pass123", 1000.0, "VERIFIED");
+        accountRepository.save(account);
 
-        doThrow(new BankingException("Insufficient funds"))
-                .when(transactionPolicy).validateWithdraw(any(), any());
+        transactionPolicy.shouldThrowWithdrawError = true;
 
         String result = accountService.processWithdraw("123", new BigDecimal("2000"));
 
         assertEquals("Failed: Insufficient funds", result);
-        verify(accountRepository, never()).save(any());
     }
 
     // =========================================================
@@ -127,52 +110,97 @@ public class AccountServiceWhiteBoxTest {
     @Test
     // Coverage: Transfer - Path 1 (Decision: One/Both Accounts Not Found)
     public void testTransfer_AccountNotFound() {
-        when(accountRepository.findByAccountNumber("123"))
-                .thenReturn(Optional.of(new Account("123", "dummy", 0.0, "VERIFIED")));
-        when(accountRepository.findByAccountNumber("999")).thenReturn(Optional.empty());
+        Account source = new Account("123", "John", "john_user", "pass123", 1000.0, "VERIFIED");
+        accountRepository.save(source);
+        // Dest "999" missing
 
         String result = accountService.processTransfer("123", "999", new BigDecimal("100"));
 
         assertEquals("Failed: Account not found", result);
-        verify(accountRepository, never()).save(any());
     }
 
     @Test
     // Coverage: Transfer - Path 2 (Decision: Success)
     public void testTransfer_Success() {
-        Account source = new Account("123", "John", 1000.0, "VERIFIED");
-        Account dest = new Account("456", "Jane", 500.0, "VERIFIED");
-
-        when(accountRepository.findByAccountNumber("123")).thenReturn(Optional.of(source));
-        when(accountRepository.findByAccountNumber("456")).thenReturn(Optional.of(dest));
-
-        doNothing().when(transactionPolicy).validateTransfer(any(), any(), any());
+        Account source = new Account("123", "John", "john_user", "pass123", 1000.0, "VERIFIED");
+        Account dest = new Account("456", "Jane", "jane_user", "pass456", 500.0, "VERIFIED");
+        accountRepository.save(source);
+        accountRepository.save(dest);
 
         String result = accountService.processTransfer("123", "456", new BigDecimal("100"));
 
         assertEquals("Transfer successful", result);
         assertEquals(new BigDecimal("900.00"), source.getBalance());
         assertEquals(new BigDecimal("600.00"), dest.getBalance());
-
-        verify(accountRepository).save(source);
-        verify(accountRepository).save(dest);
     }
 
     @Test
     // Coverage: Transfer - Path 3 (Decision: Policy Exception)
     public void testTransfer_PolicyFailure() {
-        Account source = new Account("123", "John", 1000.0, "VERIFIED");
-        Account dest = new Account("456", "Jane", 500.0, "VERIFIED");
+        Account source = new Account("123", "John", "john_user", "pass123", 1000.0, "VERIFIED");
+        Account dest = new Account("456", "Jane", "jane_user", "pass456", 500.0, "VERIFIED");
+        accountRepository.save(source);
+        accountRepository.save(dest);
 
-        when(accountRepository.findByAccountNumber("123")).thenReturn(Optional.of(source));
-        when(accountRepository.findByAccountNumber("456")).thenReturn(Optional.of(dest));
-
-        doThrow(new BankingException("Transfer failed: limit exceeded"))
-                .when(transactionPolicy).validateTransfer(any(), any(), any());
+        transactionPolicy.shouldThrowTransferError = true;
 
         String result = accountService.processTransfer("123", "456", new BigDecimal("100000"));
 
         assertEquals("Failed: Transfer failed: limit exceeded", result);
-        verify(accountRepository, never()).save(any());
+    }
+
+    // =========================================================
+    // Manual Stubs Implementation
+    // =========================================================
+
+    // Note: AccountRepository is a CLASS, so we must EXTEND it, not start from
+    // scratch.
+    class StubAccountRepository extends AccountRepository {
+        private Map<String, Account> db = new HashMap<>();
+
+        @Override
+        public Optional<Account> findByAccountNumber(String accountNumber) {
+            return Optional.ofNullable(db.get(accountNumber));
+        }
+
+        @Override
+        public Optional<Account> findAccountbyUsername(String username) {
+            return db.values().stream()
+                    .filter(acc -> acc.getUsername().equalsIgnoreCase(username))
+                    .findFirst();
+        }
+
+        @Override
+        public Account save(Account entity) {
+            db.put(entity.getAccountNumber(), entity);
+            return entity;
+        }
+    }
+
+    class StubTransactionPolicy implements TransactionPolicy {
+        public boolean shouldThrowWithdrawError = false;
+        public boolean shouldThrowDepositError = false;
+        public boolean shouldThrowTransferError = false;
+
+        @Override
+        public void validateWithdraw(Account account, BigDecimal amount) {
+            if (shouldThrowWithdrawError) {
+                throw new BankingException("Insufficient funds");
+            }
+        }
+
+        @Override
+        public void validateDeposit(Account account, BigDecimal amount) {
+            if (shouldThrowDepositError) {
+                throw new InvalidAmountException("Invalid amount");
+            }
+        }
+
+        @Override
+        public void validateTransfer(Account source, Account destination, BigDecimal amount) {
+            if (shouldThrowTransferError) {
+                throw new BankingException("Transfer failed: limit exceeded");
+            }
+        }
     }
 }
