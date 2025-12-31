@@ -7,4 +7,4 @@
 | SUSPENDED  | Limited*           | Blocked              | Blocked               | Limited*         |
 | CLOSED     | Blocked            | Blocked              | Blocked               | Blocked          |
 
-> **Note**: Limited means the account can only make deposits and receive transfers.
+> **Note**: "Limited" indicates the operation is allowed but may trigger additional compliance logging or alerts. For the purpose of functional testing, it acts as "Allowed".

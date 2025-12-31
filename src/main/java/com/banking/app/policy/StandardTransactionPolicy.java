@@ -53,10 +53,6 @@ public class StandardTransactionPolicy implements TransactionPolicy {
             throw new AccountStatusException("Transfer failed: Destination account is closed.");
         }
 
-        if (destination.getStatus() == AccountStatus.SUSPENDED) {
-            throw new AccountStatusException("Transfer failed: Destination account is suspended.");
-        }
-
         validateAmountRange(amount, "Transfer");
 
         if (amount.compareTo(source.getBalance()) > 0) {
