@@ -117,4 +117,58 @@ public class AccountService {
             return "Failed: " + e.getMessage();
         }
     }
+
+    public Account login(String inputIdentifier, String password) {
+        // Step 1: Try to find by Account Number (ID)
+        Optional<Account> accountOpt = accountRepository.findByAccountNumber(inputIdentifier);
+
+        // Step 2: If not found by ID, try to find by Username
+        if (accountOpt.isEmpty()) {
+            accountOpt = accountRepository.findAccountbyUsername(inputIdentifier);
+        }
+
+        // Step 3: If STILL empty, the user doesn't exist
+        if (accountOpt.isEmpty()) {
+            throw new BankingException("User not found.");
+        }
+
+        Account account = accountOpt.get();
+
+        // Step 4: Check Password
+        if (!account.getPassword().equals(password)) {
+            throw new BankingException("Invalid password.");
+        }
+
+        return account;
+    }
+
+    public Account registerUser(String clientName, String username, String password) {
+
+        // TEST CASE 1: Duplicate Username Check
+        // This allows you to test if the system blocks existing users.
+        if (accountRepository.findAccountbyUsername(username).isPresent()) {
+            throw new BankingException("Registration failed: Username '" + username + "' is already taken.");
+        }
+
+        // Generate a random 9-digit Account Number
+        String newAccountNumber = String.valueOf((long) (Math.random() * 900000000L) + 100000000L);
+
+        // TEST CASE 2: Collision Check ...for white box testing to be easier
+        if (accountRepository.findByAccountNumber(newAccountNumber).isPresent()) {
+            throw new BankingException("System error: Generated account number collision. Please try again.");
+        }
+
+        // Create the Account
+        // Note: Status is hardcoded to "UNVERIFIED" to test state-based testing
+        Account newAccount = new Account(
+                newAccountNumber,
+                clientName,
+                username,
+                password,
+                0.00, // Initial Balance
+                "UNVERIFIED");
+
+        // Save to "Database"
+        return accountRepository.save(newAccount);
+    }
 }
