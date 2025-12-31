@@ -31,7 +31,11 @@ public class PaymentController {
         try {
             // Using a hardcoded account ID for now as per the current dashboard logic
             String result = creditCardService.processCardDeposit("123", cardNumber, cvv, expiry, amount);
-            model.addAttribute("success", result);
+            if (result.toLowerCase().contains("failed")) {
+                model.addAttribute("error", result);
+            } else {
+                model.addAttribute("success", result);
+            }
         } catch (Exception e) {
             model.addAttribute("error", e.getMessage());
         }
