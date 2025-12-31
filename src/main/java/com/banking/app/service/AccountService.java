@@ -9,14 +9,18 @@ import java.util.Optional;
 
 import com.banking.app.exception.BankingException;
 
+import com.banking.app.policy.TransactionPolicy;
+
 @Service
 public class AccountService {
 
     private final AccountRepository accountRepository;
+    private final TransactionPolicy transactionPolicy;
 
     @Autowired
-    public AccountService(AccountRepository accountRepository) {
+    public AccountService(AccountRepository accountRepository, TransactionPolicy transactionPolicy) {
         this.accountRepository = accountRepository;
+        this.transactionPolicy = transactionPolicy;
     }
 
     public Account getAccount(String accountNumber) {
@@ -30,6 +34,7 @@ public class AccountService {
 
         Account account = accountOpt.get();
         try {
+            transactionPolicy.validateWithdraw(account, amount);
             account.withdraw(amount);
             accountRepository.save(account);
             return "Withdrawal successful";
@@ -45,6 +50,7 @@ public class AccountService {
 
         Account account = accountOpt.get();
         try {
+            transactionPolicy.validateDeposit(account, amount);
             account.deposit(amount);
             accountRepository.save(account);
             return "Deposit successful";
@@ -64,6 +70,7 @@ public class AccountService {
         Account dest = destOpt.get();
 
         try {
+            transactionPolicy.validateTransfer(source, dest, amount);
             source.transfer(dest, amount);
             accountRepository.save(source);
             accountRepository.save(dest);
