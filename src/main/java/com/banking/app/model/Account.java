@@ -8,16 +8,26 @@ import com.banking.app.exception.*;
 public class Account {
     private String accountNumber;
     private String clientName;
+    private String username;
+    private String password;
+    // private String phoneNumber;
+    // private String email;
     private BigDecimal balance;
     private AccountStatus status;
 
-    public Account(String accountNumber, String clientName, double balance, String status) {
+    public Account(String accountNumber, String clientName, String username, String password, double balance,
+            String status) {
         this.accountNumber = accountNumber;
         this.clientName = clientName;
+        this.username = username;
+        this.password = password;
+        // this.phoneNumber = phoneNumber;
+        // this.email = email;
         this.balance = BigDecimal.valueOf(balance).setScale(2, RoundingMode.HALF_UP);
         this.status = AccountStatus.valueOf(status.toUpperCase());
     }
 
+    // ###########needs to be removed
     public Account(String accountNumber, BigDecimal balance, AccountStatus status) {
         this.accountNumber = accountNumber;
         this.balance = balance.setScale(2, RoundingMode.HALF_UP);
@@ -54,6 +64,22 @@ public class Account {
 
     public void setClientName(String clientName) {
         this.clientName = clientName;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     @Override

@@ -20,12 +20,12 @@ public class AccountRepository {
     /**
      * Constructor - Initialize with some dummy accounts
      */
-    public AccountRepository() {
+    public AccountRepository() { // now have usernames and passwords
         // Create some default accounts for testing
-        accounts.put("123", new Account("123", "John Doe", 12450.00, "VERIFIED"));
-        accounts.put("456", new Account("456", "Jane Smith", 5000.00, "VERIFIED"));
-        accounts.put("789", new Account("789", "Alice Johnson", 1000.00, "UNVERIFIED"));
-        accounts.put("999", new Account("999", "Bob Brown", 0.00, "SUSPENDED"));
+        accounts.put("123", new Account("123", "John Doe", "johndoe", "123456", 12450.00, "VERIFIED"));
+        accounts.put("456", new Account("456", "Jane Smith", "janesmith", "123456", 5000.00, "VERIFIED"));
+        accounts.put("789", new Account("789", "Alice Johnson", "alicejohnson", "123456", 1000.00, "UNVERIFIED"));
+        accounts.put("999", new Account("999", "Bob Brown", "bobbrown", "123456", 0.00, "SUSPENDED"));
     }
 
     /**
@@ -36,6 +36,18 @@ public class AccountRepository {
      */
     public Optional<Account> findByAccountNumber(String accountNumber) {
         return Optional.ofNullable(accounts.get(accountNumber));
+    }
+
+    /**
+     * Find an account by username
+     * 
+     * @param username The username to search for
+     * @return Optional containing the account if found, empty otherwise
+     */
+    public Optional<Account> findAccountbyUsername(String username) {
+        return accounts.values().stream()
+                .filter(acc -> acc.getUsername().equalsIgnoreCase(username)) // Case-insensitive check
+                .findFirst();
     }
 
     /**
