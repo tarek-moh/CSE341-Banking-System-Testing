@@ -10,8 +10,6 @@ public class Account {
     private String clientName;
     private BigDecimal balance;
     private AccountStatus status;
-    private final String transactionLimit = "1000";
-    private final String minTransactionAmount = "50";
 
     public Account(String accountNumber, String clientName, double balance, String status) {
         this.accountNumber = accountNumber;
@@ -65,91 +63,18 @@ public class Account {
     }
 
     // ======== Account Operations ========
-    // > Note: These methods comply with the permissions table in permissions.md
+    // > Note: Rules and limits are validated in the TransactionPolicy layer
+    // > before these state changes are called.
 
     public void withdraw(BigDecimal amount) {
-        if (status == AccountStatus.CLOSED) {
-            throw new AccountStatusException("Transaction failed: Your account is closed.");
-        }
-        if (status == AccountStatus.SUSPENDED) {
-            throw new AccountStatusException("Transaction failed: Your account is suspended.");
-        }
-        if (status == AccountStatus.UNVERIFIED) {
-            throw new AccountStatusException("Transaction failed: Unverified accounts cannot withdraw funds.");
-        }
-
-        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new InvalidAmountException("Transaction failed: Withdrawal amount must be greater than zero.");
-        }
-
-        if (amount.compareTo(balance) > 0) {
-            throw new InsufficientFundsException(
-                    "Transaction failed: Insufficient funds. Available balance is $" + balance);
-        }
-
-        if (amount.compareTo(new BigDecimal(transactionLimit)) > 0) {
-            throw new InvalidAmountException(
-                    "Transaction failed: Withdrawal amount must be less than $" + transactionLimit);
-        }
-
-        if (amount.compareTo(new BigDecimal(minTransactionAmount)) < 0) {
-            throw new InvalidAmountException(
-                    "Transaction failed: Withdrawal amount must be greater than $" + minTransactionAmount);
-        }
-
         balance = balance.subtract(amount);
     }
 
     public void deposit(BigDecimal amount) {
-        if (status == AccountStatus.CLOSED) {
-            throw new AccountStatusException("Transaction failed: Your account is closed.");
-        }
-
-        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new InvalidAmountException("Transaction failed: Deposit amount must be greater than zero.");
-        }
-
-        if (amount.compareTo(new BigDecimal(transactionLimit)) > 0) {
-            throw new InvalidAmountException(
-                    "Transaction failed: Deposit amount must be less than $" + transactionLimit);
-        }
-
-        if (amount.compareTo(new BigDecimal(minTransactionAmount)) < 0) {
-            throw new InvalidAmountException(
-                    "Transaction failed: Deposit amount must be greater than $" + minTransactionAmount);
-        }
-
         balance = balance.add(amount);
     }
 
     public void transfer(Account destination, BigDecimal amount) {
-        if (status == AccountStatus.CLOSED) {
-            throw new AccountStatusException("Transfer failed: Your account is closed.");
-        }
-        if (status == AccountStatus.SUSPENDED) {
-            throw new AccountStatusException("Transfer failed: Your account is suspended.");
-        }
-        if (status == AccountStatus.UNVERIFIED) {
-            throw new AccountStatusException("Transfer failed: Unverified accounts cannot initiate transfers.");
-        }
-
-        if (destination.getStatus() == AccountStatus.CLOSED) {
-            throw new AccountStatusException("Transfer failed: Destination account is closed.");
-        }
-        if (destination.getStatus() == AccountStatus.SUSPENDED) {
-            throw new AccountStatusException("Transfer failed: Destination account is suspended.");
-        }
-
-        if (amount.compareTo(new BigDecimal(minTransactionAmount)) < 0) {
-            throw new InvalidAmountException(
-                    "Transfer failed: Transfer amount must be greater than $" + minTransactionAmount);
-        }
-
-        if (amount.compareTo(new BigDecimal(transactionLimit)) > 0) {
-            throw new InvalidAmountException(
-                    "Transfer failed: Transfer amount must be less than $" + transactionLimit);
-        }
-
         // Withdraw from source
         this.withdraw(amount);
 
