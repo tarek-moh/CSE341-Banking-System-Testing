@@ -29,26 +29,24 @@ public class AccountOperationsTest {
     @BeforeEach
     public void setup() {
         // Reset accounts to known state
-        // Account "123" with 5000 balance
-        Account account = accountService.getAccount("123");
-        if (account == null) {
-            // should add account to the repository
-            // but for now I will assume it is already there
-            System.err.println("Account 123 not found");
-        } else {
-            account.setBalance(new BigDecimal("5000"));
-            accountRepository.save(account);
-            System.out.println("Account 123 reset to 5000");
-        }
+        updateBalance("123", new BigDecimal("20000"));
+        System.out.println("Account 123 reset to 20000");
 
         // Ensure destination account "456" exists for transfers
         Account destAccount = accountService.getAccount("456");
         if (destAccount != null) {
-            destAccount.setBalance(new BigDecimal("1000"));
-            accountRepository.save(destAccount);
+            updateBalance("456", new BigDecimal("1000"));
             System.out.println("Account 456 reset to 1000");
         } else {
             System.err.println("Account 456 not found");
+        }
+    }
+
+    private void updateBalance(String accountNumber, BigDecimal balance) {
+        Account account = accountService.getAccount(accountNumber);
+        if (account != null) {
+            account.setBalance(balance);
+            accountRepository.save(account);
         }
     }
 
@@ -148,19 +146,20 @@ public class AccountOperationsTest {
 
     @Test
     public void testWithdrawBoundaryValues() {
-        // Assuming balance is 5000
+        // Set balance to 5000 for this test
+        updateBalance("123", new BigDecimal("5000"));
 
         // 4999 -> Success
         assertEquals("Withdrawal successful", accountService.processWithdraw("123", new BigDecimal("4999")));
 
         // Reset balance
-        setup();
+        updateBalance("123", new BigDecimal("5000"));
 
         // 5000 -> Success
         assertEquals("Withdrawal successful", accountService.processWithdraw("123", new BigDecimal("5000")));
 
         // Reset balance
-        setup();
+        updateBalance("123", new BigDecimal("5000"));
 
         // 5001 -> Fail (Insufficient funds)
         assertTrue(accountService.processWithdraw("123", new BigDecimal("5001"))
@@ -179,13 +178,16 @@ public class AccountOperationsTest {
 
     @Test
     public void testWithdrawEquivalencePartitioning() {
+        // Set balance to 5000
+        updateBalance("123", new BigDecimal("5000"));
+
         // Valid Range (5000) -> Success
         assertEquals("Withdrawal successful", accountService.processWithdraw("123", new BigDecimal("5000")));
 
-        setup(); // Reset
+        updateBalance("123", new BigDecimal("5000")); // Reset
 
-        // Invalid (> Balance) (1000000) -> Fail
-        assertTrue(accountService.processWithdraw("123", new BigDecimal("1000000"))
+        // Invalid (> Balance) (6000) -> Fail
+        assertTrue(accountService.processWithdraw("123", new BigDecimal("6000"))
                 .contains("Insufficient funds"));
 
         // Invalid (Negative) (-1000) -> Fail
