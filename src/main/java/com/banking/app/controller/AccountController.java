@@ -7,7 +7,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.banking.app.model.Account;
 import com.banking.app.service.AccountService;
+
+import jakarta.servlet.http.HttpSession;
+
 import java.math.BigDecimal;
 
 @Controller
@@ -21,8 +25,13 @@ public class AccountController {
     }
 
     @GetMapping("/account")
-    public String account(Model model) {
-        model.addAttribute("account", accountService.getAccount("123"));
+    public String account(Model model, HttpSession session) {
+        Account sessionUser = (Account) session.getAttribute("loggedInUser");
+        if (sessionUser == null) {
+            return "redirect:/login";
+        }
+
+        model.addAttribute("account", accountService.getAccount(sessionUser.getAccountNumber()));
         return "account";
     }
 
@@ -37,73 +46,111 @@ public class AccountController {
     }
 
     @PostMapping("/account/withdraw")
-    public String handleWithdraw(@RequestParam(required = true) BigDecimal amount, Model model) {
+    public String handleWithdraw(@RequestParam(required = true) BigDecimal amount, Model model, HttpSession session) {
+        Account sessionUser = (Account) session.getAttribute("loggedInUser");
+        if (sessionUser == null) {
+            return "redirect:/login";
+        }
+
+        String accountNum = sessionUser.getAccountNumber();
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
             model.addAttribute("error", "Invalid withdrawal amount");
-            model.addAttribute("account", accountService.getAccount("123"));
+            model.addAttribute("account", accountService.getAccount(accountNum));
             return "dashboard";
         }
 
-        String result = accountService.processWithdraw("123", amount);
+        String result = accountService.processWithdraw(accountNum, amount);
         if (result.contains("Failed")) {
             model.addAttribute("error", result);
         } else {
             model.addAttribute("success", result);
         }
-        model.addAttribute("account", accountService.getAccount("123"));
+        model.addAttribute("account", accountService.getAccount(accountNum));
         return "dashboard";
     }
 
     @PostMapping("/account/deposit")
-    public String handleDeposit(@RequestParam(required = true) BigDecimal amount, Model model) {
+    public String handleDeposit(@RequestParam(required = true) BigDecimal amount, Model model, HttpSession session) {
+        Account sessionUser = (Account) session.getAttribute("loggedInUser");
+        if (sessionUser == null) {
+            return "redirect:/login";
+        }
+
+        String accountNum = sessionUser.getAccountNumber();
+
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
             model.addAttribute("error", "Invalid deposit amount");
-            model.addAttribute("account", accountService.getAccount("123"));
+            model.addAttribute("account", accountService.getAccount(accountNum));
             return "dashboard";
         }
 
-        String result = accountService.processDeposit("123", amount);
+        String result = accountService.processDeposit(accountNum, amount);
+
         if (result.contains("Failed")) {
             model.addAttribute("error", result);
         } else {
             model.addAttribute("success", result);
         }
-        model.addAttribute("account", accountService.getAccount("123"));
+
+        model.addAttribute("account", accountService.getAccount(accountNum));
         return "dashboard";
     }
 
     @PostMapping("/account/transfer")
     public String handleTransfer(@RequestParam(required = true) String recipientAccount,
             @RequestParam(required = true) BigDecimal amount,
-            Model model) {
-        String result = accountService.processTransfer("123", recipientAccount, amount);
+            Model model, HttpSession session) {
+
+        Account sessionUser = (Account) session.getAttribute("loggedInUser");
+        if (sessionUser == null) {
+            return "redirect:/login";
+        }
+
+        String accountNum = sessionUser.getAccountNumber();
+
+        String result = accountService.processTransfer(accountNum, recipientAccount, amount);
+
         if (result.contains("Failed")) {
             model.addAttribute("error", result);
         } else {
             model.addAttribute("success", result);
         }
-        model.addAttribute("account", accountService.getAccount("123"));
+
+        model.addAttribute("account", accountService.getAccount(accountNum));
         return "dashboard";
     }
 
     @PostMapping("/account/verify")
-    public String handleVerify(Model model) {
-        accountService.processVerify("123");
-        model.addAttribute("account", accountService.getAccount("123"));
+    public String handleVerify(Model model, HttpSession session) {
+        Account sessionUser = (Account) session.getAttribute("loggedInUser");
+        if (sessionUser == null) {
+            return "redirect:/login";
+        }
+
+        accountService.processVerify(sessionUser.getAccountNumber());
+
         return "redirect:/dashboard";
     }
 
     @PostMapping("/account/suspend")
-    public String handleSuspend(Model model) {
-        accountService.processSuspend("123");
-        model.addAttribute("account", accountService.getAccount("123"));
+    public String handleSuspend(Model model, HttpSession session) {
+        Account sessionUser = (Account) session.getAttribute("loggedInUser");
+        if (sessionUser == null) {
+            return "redirect:/login";
+        }
+
+        accountService.processSuspend(sessionUser.getAccountNumber());
         return "redirect:/dashboard";
     }
 
     @PostMapping("/account/close")
-    public String handleClose(Model model) {
-        accountService.processClose("123");
-        model.addAttribute("account", accountService.getAccount("123"));
+    public String handleClose(Model model, HttpSession session) {
+        Account sessionUser = (Account) session.getAttribute("loggedInUser");
+        if (sessionUser == null) {
+            return "redirect:/login";
+        }
+
+        accountService.processClose(sessionUser.getAccountNumber());
         return "redirect:/dashboard";
     }
 }
