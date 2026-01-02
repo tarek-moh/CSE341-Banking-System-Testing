@@ -50,7 +50,10 @@ public class AuthController {
             Account loggedInAccount = accountService.login(identifier, password);
             // 2. Save the user object into the session
             session.setAttribute("loggedInUser", loggedInAccount);
-            // 3. Redirect to the dashboard
+            // 3. Redirect based on user type
+            if (loggedInAccount.isAdmin()) {
+                return "redirect:/admin";
+            }
             return "redirect:/dashboard";
         } catch (Exception e) {
             // If login fails, stay on page and show error

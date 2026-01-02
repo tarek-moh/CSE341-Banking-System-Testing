@@ -125,6 +125,55 @@ public class AccountService {
         }
     }
 
+    public String processViolation(String accountNumber) {
+        Optional<Account> accountOpt = accountRepository.findByAccountNumber(accountNumber);
+        if (accountOpt.isEmpty())
+            return "Failed: Account not found";
+
+        Account account = accountOpt.get();
+        try {
+            account.violation();
+            accountRepository.save(account);
+            return "Violation processed successfully";
+        } catch (BankingException e) {
+            return "Failed: " + e.getMessage();
+        }
+    }
+
+    public String processAdminAction(String accountNumber) {
+        Optional<Account> accountOpt = accountRepository.findByAccountNumber(accountNumber);
+        if (accountOpt.isEmpty())
+            return "Failed: Account not found";
+
+        Account account = accountOpt.get();
+        try {
+            account.adminAction();
+            accountRepository.save(account);
+            return "Admin action processed successfully";
+        } catch (BankingException e) {
+            return "Failed: " + e.getMessage();
+        }
+    }
+
+    public String processAppeal(String accountNumber) {
+        Optional<Account> accountOpt = accountRepository.findByAccountNumber(accountNumber);
+        if (accountOpt.isEmpty())
+            return "Failed: Account not found";
+
+        Account account = accountOpt.get();
+        try {
+            account.appeal();
+            accountRepository.save(account);
+            return "Appeal processed successfully";
+        } catch (BankingException e) {
+            return "Failed: " + e.getMessage();
+        }
+    }
+
+    public java.util.List<Account> getAllAccounts() {
+        return new java.util.ArrayList<>(accountRepository.findAll().values());
+    }
+
     public Account login(String inputIdentifier, String password) {
         // Step 1: Try to find by Account Number (ID)
         Optional<Account> accountOpt = accountRepository.findByAccountNumber(inputIdentifier);

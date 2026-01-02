@@ -158,6 +158,11 @@ public class AccountServiceWhiteBoxTest {
     class StubAccountRepository extends AccountRepository {
         private Map<String, Account> db = new HashMap<>();
 
+        public StubAccountRepository() {
+            // Call parent constructor with default admin values for testing
+            super("admin", "admin123", "000", "Admin User");
+        }
+
         @Override
         public Optional<Account> findByAccountNumber(String accountNumber) {
             return Optional.ofNullable(db.get(accountNumber));
