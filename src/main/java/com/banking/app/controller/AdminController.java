@@ -28,7 +28,11 @@ public class AdminController {
 
     @GetMapping("/admin")
     public String admin(HttpSession session, Model model) {
-        // Check if user is logged in and is admin
+        // Check if session exists and user is logged in and is admin
+        if (session == null) {
+            return "redirect:/login";
+        }
+        
         Account loggedInUser = (Account) session.getAttribute("loggedInUser");
         if (loggedInUser == null || !loggedInUser.isAdmin()) {
             return "redirect:/login";
@@ -64,6 +68,10 @@ public class AdminController {
 
     @PostMapping("/admin/verify")
     public String verifyAccount(@RequestParam String accountNumber, HttpSession session, Model model) {
+        if (session == null) {
+            return "redirect:/login";
+        }
+        
         Account loggedInUser = (Account) session.getAttribute("loggedInUser");
         if (loggedInUser == null || !loggedInUser.isAdmin()) {
             return "redirect:/login";
@@ -76,6 +84,10 @@ public class AdminController {
 
     @PostMapping("/admin/suspend")
     public String suspendAccount(@RequestParam String accountNumber, HttpSession session, Model model) {
+        if (session == null) {
+            return "redirect:/login";
+        }
+        
         Account loggedInUser = (Account) session.getAttribute("loggedInUser");
         if (loggedInUser == null || !loggedInUser.isAdmin()) {
             return "redirect:/login";
@@ -88,6 +100,10 @@ public class AdminController {
 
     @PostMapping("/admin/close")
     public String closeAccount(@RequestParam String accountNumber, HttpSession session, Model model) {
+        if (session == null) {
+            return "redirect:/login";
+        }
+        
         Account loggedInUser = (Account) session.getAttribute("loggedInUser");
         if (loggedInUser == null || !loggedInUser.isAdmin()) {
             return "redirect:/login";
@@ -100,6 +116,10 @@ public class AdminController {
 
     @PostMapping("/admin/violation")
     public String applyViolation(@RequestParam String accountNumber, HttpSession session, Model model) {
+        if (session == null) {
+            return "redirect:/login";
+        }
+        
         Account loggedInUser = (Account) session.getAttribute("loggedInUser");
         if (loggedInUser == null || !loggedInUser.isAdmin()) {
             return "redirect:/login";
@@ -112,6 +132,10 @@ public class AdminController {
 
     @PostMapping("/admin/admin-action")
     public String applyAdminAction(@RequestParam String accountNumber, HttpSession session, Model model) {
+        if (session == null) {
+            return "redirect:/login";
+        }
+        
         Account loggedInUser = (Account) session.getAttribute("loggedInUser");
         if (loggedInUser == null || !loggedInUser.isAdmin()) {
             return "redirect:/login";
@@ -124,6 +148,10 @@ public class AdminController {
 
     @PostMapping("/admin/appeal")
     public String processAppeal(@RequestParam String accountNumber, HttpSession session, Model model) {
+        if (session == null) {
+            return "redirect:/login";
+        }
+        
         Account loggedInUser = (Account) session.getAttribute("loggedInUser");
         if (loggedInUser == null || !loggedInUser.isAdmin()) {
             return "redirect:/login";
