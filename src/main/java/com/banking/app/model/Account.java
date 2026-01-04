@@ -14,6 +14,7 @@ public class Account {
     // private String email;
     private BigDecimal balance;
     private AccountStatus status;
+    private boolean isAdmin;
 
     public Account(String accountNumber, String clientName, String username, String password, double balance,
             String status) {
@@ -25,6 +26,18 @@ public class Account {
         // this.email = email;
         this.balance = BigDecimal.valueOf(balance).setScale(2, RoundingMode.HALF_UP);
         this.status = AccountStatus.valueOf(status.toUpperCase());
+        this.isAdmin = false;
+    }
+
+    public Account(String accountNumber, String clientName, String username, String password, double balance,
+            String status, boolean isAdmin) {
+        this.accountNumber = accountNumber;
+        this.clientName = clientName;
+        this.username = username;
+        this.password = password;
+        this.balance = BigDecimal.valueOf(balance).setScale(2, RoundingMode.HALF_UP);
+        this.status = AccountStatus.valueOf(status.toUpperCase());
+        this.isAdmin = isAdmin;
     }
 
     // ###########needs to be removed
@@ -82,6 +95,14 @@ public class Account {
         this.password = password;
     }
 
+    public boolean isAdmin() {
+        return isAdmin;
+    }
+
+    public void setAdmin(boolean admin) {
+        isAdmin = admin;
+    }
+
     @Override
     public String toString() {
         return "Account [accountNumber=" + accountNumber + ", clientName=" + clientName + ", balance=" + balance
@@ -133,6 +154,40 @@ public class Account {
             throw new AccountStatusException("Account is already closed.");
         }
         status = AccountStatus.CLOSED;
+    }
+
+    /**
+     * Handles violation: Unverified -> Suspended, or Verified -> Closed
+     */
+    public void violation() {
+        if (status == AccountStatus.UNVERIFIED) {
+            status = AccountStatus.SUSPENDED;
+        } else if (status == AccountStatus.VERIFIED) {
+            status = AccountStatus.CLOSED;
+        } else {
+            throw new AccountStatusException("Cannot apply violation to account in " + status.toString().toLowerCase() + " state.");
+        }
+    }
+
+    /**
+     * Admin action: Suspended -> Closed, or Verified -> Closed
+     */
+    public void adminAction() {
+        if (status == AccountStatus.SUSPENDED || status == AccountStatus.VERIFIED) {
+            status = AccountStatus.CLOSED;
+        } else {
+            throw new AccountStatusException("Cannot apply admin action to account in " + status.toString().toLowerCase() + " state.");
+        }
+    }
+
+    /**
+     * Appeal: Closed -> Suspended
+     */
+    public void appeal() {
+        if (status != AccountStatus.CLOSED) {
+            throw new AccountStatusException("Appeal can only be applied to closed accounts. Current status: " + status.toString().toLowerCase() + ".");
+        }
+        status = AccountStatus.SUSPENDED;
     }
 
 }
